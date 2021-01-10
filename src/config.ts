@@ -14,7 +14,7 @@ class Config  {
     SCREEN_HEIGHT = window.innerHeight
 
     mousePos: Point = {
-        x: 400,
+        x: this.SCREEN_WIDTH/2,
         y: 300
     }
 

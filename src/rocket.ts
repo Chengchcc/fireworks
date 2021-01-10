@@ -1,11 +1,30 @@
 import Particle from "./particle";
 import config from "./config";
-import { random } from "./utils";
+import { explodeMusic, random } from "./utils";
+import myShapeSet from "./shape";
+
+
 
 class Rocket extends Particle{
 
     // 保炸颜色
     explosionColor = 0;
+
+    update(){
+        this.vel.x *= this.resistance
+        this.vel.y *= this.resistance
+        // 重力影响
+        this.vel.y += this.gravity
+        // 更新位置
+        this.pos.x += this.vel.x
+        this.pos.y += this.vel.y
+
+        // 尺寸衰减
+        this.size *= this.shrink
+
+        // 变淡
+        // this.alpha -= this.fade
+    }
 
     constructor(x: number){
         super({x, y: config.SCREEN_HEIGHT})
@@ -14,17 +33,20 @@ class Rocket extends Particle{
     // 爆炸
     explode() {
         const count = random(80, 100)
-
-        const particles_ = [...Array(count)].map(()=>{
+        const { func, scope } = myShapeSet.random()
+        const particles_ = [...Array(count)].map((i,idx)=>{
             const particle = new Particle(this.pos)
-            const angle = Math.random()* Math.PI * 2
 
+            const angle = scope[0] + scope[1] * idx / count;
             const speed = Math.cos(Math.random() * Math.PI / 2) * 15
+            const sppedx = speed * func(angle) || 0
+
 
             particle.vel = {
-                x: Math.cos(angle) * speed,
-                y: Math.sin(angle) * speed
+                x: Math.cos(angle) * sppedx,
+                y: Math.sin(angle) * sppedx
             }
+
 
             particle.size = 10
             particle.gravity = 0.2
@@ -37,6 +59,7 @@ class Rocket extends Particle{
             return particle
         })
         config.particles.push(...particles_)
+        explodeMusic()
     }
 
     render(){

@@ -27,9 +27,17 @@ class Particle {
     // 是否闪烁
     flick = false
 
+    index = 0
+
+    frame = 50
+
+    __liner(src: number, dst: number, coeff: number){
+        return src + (dst - src) * coeff
+    }
+
     get exists(){
         //
-        return this.alpha >=0.1 && this.size>=1
+        return this.alpha >=0.1 && this.size>=1 && this.index<this.frame
     }
 
     constructor(pos?: Point){
@@ -41,22 +49,30 @@ class Particle {
 
     update() {
         // 阻力影响
-        this.vel.x *= this.resistance
-        this.vel.y *= this.resistance
-
-        // 重力影响
-        this.vel.y += this.gravity
-
-        // 更新位置
-        this.pos.x += this.vel.x
-        this.pos.y += this.vel.y
-
+        this.index ++
+        if(this.index > this.frame){
+            this.vel.x *= this.resistance
+            this.vel.y *= this.resistance
+            // 重力影响
+            this.vel.y += this.gravity
+            // 更新位置
+            this.pos.x += this.vel.x
+            this.pos.y += this.vel.y
+        }else {
+            const coeff = this.index / this.frame
+            const param1 = coeff * coeff
+            this.vel.x *= this.resistance
+            this.vel.y *= this.resistance
+            this.vel.y += this.gravity
+            
+            this.pos.x  += this.__liner(this.vel.x, 0, param1)
+            this.pos.y  += this.__liner(this.vel.y, 0, param1)  + this.gravity
+        }
         // 尺寸衰减
         this.size *= this.shrink
 
         // 变淡
         this.alpha -= this.fade
-
     }
 
     render() {
